@@ -1,0 +1,7 @@
+<launch>
+ <node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node">
+  <param name="frame_id" value="front_laser" />
+  <remap from="/scan" to="/front/scan" />
+ </node>
+</launch>
+

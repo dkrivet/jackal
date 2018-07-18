@@ -120,74 +120,18 @@
       </inertial>
   </link>
 
-  <xacro:unless value="$(optenv JACKAL_FRONT_ACCESSORY_FENDER 0)">
-    <link name="front_fender_link">
-      <visual>
-        <geometry>
-          <mesh filename="package://jackal_description/meshes/jackal-fender.stl"/>
-        </geometry>
-        <material name="yellow" />
-      </visual>
-    </link>
-  </xacro:unless>
-
-  <xacro:if value="$(optenv JACKAL_FRONT_ACCESSORY_FENDER 0)">
-    <link name="front_fender_link">
-      <visual>
-        <geometry>
-          <mesh filename="package://jackal_description/meshes/accessory_fender.stl"/>
-        </geometry>
-        <material name="yellow" />
-      </visual>
-    </link>
-
-    <link name="front_fender_accessory_link"/>
-    <joint name="front_fender_accessory_joint" type="fixed">
-      <origin xyz="0.25629 0 0.07455" rpy="${PI} 0 0" />
-      <parent link="front_fender_link" />
-      <child link="front_fender_accessory_link" />
-    </joint>
-  </xacro:if>
-
-  <joint name="front_fender_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+  <link name="fenders_link">
+    <visual>
+      <origin xyz="0 0 ${footprint_vertical_offset}" rpy="${PI/2} 0 ${PI/2}"/>
+      <geometry>
+        <mesh filename="package://jackal_description/meshes/jackal-fenders.stl"/>
+      </geometry>
+      <material name="yellow" />
+    </visual>
+  </link>
+  <joint name="fenders_joint" type="fixed">
     <parent link="chassis_link" />
-    <child link="front_fender_link" />
-  </joint>
-
-  <xacro:unless value="$(optenv JACKAL_REAR_ACCESSORY_FENDER 0)">
-    <link name="rear_fender_link">
-      <visual>
-        <geometry>
-          <mesh filename="package://jackal_description/meshes/jackal-fender.stl"/>
-        </geometry>
-        <material name="yellow" />
-      </visual>
-    </link>
-  </xacro:unless>
-
-  <xacro:if value="$(optenv JACKAL_REAR_ACCESSORY_FENDER 0)">
-    <link name="rear_fender_link">
-      <visual>
-        <geometry>
-          <mesh filename="package://jackal_description/meshes/accessory_fender.stl"/>
-        </geometry>
-        <material name="yellow" />
-      </visual>
-    </link>
-
-    <link name="rear_fender_accessory_link"/>
-    <joint name="rear_fender_accessory_joint" type="fixed">
-      <origin xyz="0.25629 0 0.07455" rpy="${PI} 0 0" />
-      <parent link="rear_fender_link" />
-      <child link="rear_fender_accessory_link" />
-    </joint>
-  </xacro:if>
-
-  <joint name="rear_fender_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 ${PI}"/>
-    <parent link="chassis_link" />
-    <child link="rear_fender_link" />
+    <child link="fenders_link" />
   </joint>
 
   <!-- TODO: Make this internal_imu_link or something, and use a mixed-in xacro
@@ -242,6 +186,53 @@
     <child link="front_mount" />
     <origin xyz="${mount_spacing} 0 0" />
   </joint>
+
+  <!-- NEW STUFF/HOKUYO BASE -->
+  <link name="hokuyo_base_link">
+    <visual>
+      <origin xyz="0.143 0 0.2" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.12 0.1 0.08"/>
+      </geometry>
+      <material name="yellow" />
+    </visual>
+  </link>
+  <joint name="hokuyo_base_joint" type="fixed">
+    <parent link="chassis_link" />
+    <child link="hokuyo_base_link" />
+  </joint>
+
+  <!-- THIS IS THE NEW STUFF HERE -->
+  <link name="front_laser">
+    <collision>
+      <origin xyz="0.143 0 0.25" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1" />
+      </geometry>
+    </collision>
+    <visual>
+      <!-- Move the hokuyo around by cahnging the origin below -->
+      <origin xyz="0 0 -0.02" rpy="0 0 0"/>
+      <!--origin xyz="0 0 0" rpy="0 0 0"/-->
+      <geometry>
+        <mesh filename="package://jackal_description/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>  
+  </link>
+  <joint name="hokuyo_joint" type="fixed">
+    <origin xyz="0.143 0 0.27" rpy="0 0 0"/>
+    <parent link="hokuyo_base_link" />
+    <child link="front_laser" />
+  </joint>
+
+
+
+  <!-- END OF NEW STUFF HERE -->
 
   <!-- Bring in simulation data for Gazebo. -->
   <xacro:include filename="$(find jackal_description)/urdf/jackal.gazebo" />
